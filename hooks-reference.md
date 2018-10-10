@@ -88,10 +88,10 @@ const [state, setState] = useState(() => {
 ### `useEffect`
 
 ```js
-useEffect(didUpdate);
+useEffect(didUpdate, _dependencyArray);
 ```
 
-Accepts a function that contains imperative, possibly effectful code.
+Accepts a function that contains imperative, possibly effectful code, and, optionally, an array of values the effect depends on for [performance optimization](/docs/hooks-faq.html#performance-optimizations) or [conditionally firing an effect](#conditionally-firing-an-effect).
 
 Mutations, subscriptions, timers, logging, and other side-effects are not allowed inside the main body of a function component (referred to as React's _render phase_). Doing so will lead to confusing bugs and inconsistencies in the UI.
 
@@ -119,7 +119,7 @@ The clean-up function runs before the component is removed from the UI to preven
 
 Unlike `componentDidMount` and `componentDidUpdate`, the function passed to `useEffect` fires **after** layout and paint, during a deferred event. This makes it suitable for the many common side-effects, like setting up subscriptions and event handlers, because that type of work shouldn't block the browser from updating the screen.
 
-However, not all effects can be deferred. Specifically, any effect that mutates the DOM must fire synchronously before the next paint so that the user does not perceive a visual inconsistency. (The distinction is conceptually similar to passive versus active event listeners.) For these types of effects, provides two additional hooks: [`useMutationEffect`](#usemutationeffect) and [`useLayoutEffect`](#uselayouteffect). These hooks have the same signature as `useEffect`, and only differ in when they are fired.
+However, not all effects can be deferred. Specifically, any effect that mutates the DOM must fire synchronously before the next paint so that the user does not perceive a visual inconsistency. (The distinction is conceptually similar to passive versus active event listeners.) For these types of effects, React provides two additional hooks: [`useMutationEffect`](#usemutationeffect) and [`useLayoutEffect`](#uselayouteffect). These hooks have the same signature as `useEffect`, and only differ in when they are fired.
 
 Although `useEffect` is deferred until after the browser has painted, it's guaranteed to fire before a subsequent mutation. React will always flush a previous render's effects before committing new ones.
 
@@ -310,9 +310,28 @@ Note that `useRef()` is useful for more than DOM elements. It's [handy for keepi
 
 ### `useAPI`
 
-TODO
+// TODO: Review before posting
+
+You can expose an API for your component to allow your code to imperatively call hooks from outside your component:
+
+```
+function Counter(props, ref) {
+  const [count, updateCount] = useState(0);
+  useAPI(ref, () => ({updateCount}));
+  return <Text text={props.label + ': ' + count} />; 
+}
+Counter = forwardRef(Counter);
+
+<Counter ref={counterRef} />
+
+counterRef.current.updateCount(...);
+```
 
 ### `useMutationEffect`
+
+// TODO: flesh out and make specific if released
+
+> useMutationEffect runs at the same time React mutates that component's DOM nodes (but before other components in the same tree). It happens earlier than cDM/cDU did (whereas useLayoutEffect is equivalent to cDM/cDU). It can be useful if you are writing to the DOM but is *not* good if you need to read from the DOM as it's too easy to cause layout thrash. 
 
 The signature is identical to `useEffect`, but fires synchronously during the same phase that React performs its DOM mutations. Use this to perform custom DOM mutations.
 
@@ -320,7 +339,11 @@ See the section on [effect timing](#timing-of-effects) for a fuller explanation.
 
 ### `useLayoutEffect`
 
-The signature is identical to `useEffect`, but fires synchronously *after* all DOM mutations. Use this to read layout from the DOM and synchronously re-render. Updates scheduled inside `useLayoutEffect` will be flushed synchronously, before the browser has a chance to paint.
+// TODO: flesh out and make specific
+
+> Unlike componentDidMount or componentDidUpdate, effects scheduled with useEffect don’t block the browser from updating the screen. This makes your app feel more responsive. The majority of effects don’t need to happen synchronously. In the uncommon cases where they do (such as measuring the layout), there is a separate useLayoutEffect Hook that we’ll learn together with other less commonly used Hooks.
+
+The `useLayoutEffect` signature is identical to `useEffect`, but fires synchronously *after* all DOM mutations. Use this to read layout from the DOM and synchronously re-render. Updates scheduled inside `useLayoutEffect` will be flushed synchronously, before the browser has a chance to paint.
 
 > Tip
 >

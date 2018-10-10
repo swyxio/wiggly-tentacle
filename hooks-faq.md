@@ -7,6 +7,10 @@ prev: hooks-reference.html
 
 This page answers some of the commonly asked questions about [Hooks](/docs/hooks-overview.html).
 
+- [Adoption Strategy](#adoption-strategy)
+- [From Classes to Hooks](#from-classes-to-hooks)
+- [Performance Optimizations](#performance-optimizations)
+
 ## Adoption Strategy
 
 ### Do I need to rewrite all my class components?
@@ -56,7 +60,7 @@ There are a few more heuristics, and they might change over time as we fine-tune
 
 ### What does `const [thing, setThing] = useState()` mean?
 
-If you're not familiar with this syntax, check out the [explanation](/docs/hooks-state.html#tip-what-do-square-brackets-mean) in the State Hook documentation.
+If you're not familiar with the array destructuring syntax, check out the [explanation](/docs/hooks-state.html#tip-what-do-square-brackets-mean) in the State Hook documentation.
 
 ### How do lifecycle methods correspond to Hooks?
 
@@ -222,6 +226,10 @@ function Counter() {
   ```
 
 It's possible that in the future React will provide a `usePrevious` Hook out of the box since it's a relatively common use case.
+
+### Why use `useContext` when I can use <Context.Consumer>?
+
+They behave the same way (pulling the context value from the nearest matching context provider), but with `useContext` you can use values from Context within your render and other hooks in one line of code (no render props) and avoiding "wrapper hell".
 
 ## Performance Optimizations
 
